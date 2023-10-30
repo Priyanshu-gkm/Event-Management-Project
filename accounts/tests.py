@@ -72,7 +72,7 @@ class TestAccountViews(TestCase):
                 }
         response = self.client.patch(reverse('RUD_account',args=[70]),data=data)
         self.assertEquals(response.status_code, 404)
-        pass
+        
     
     def test_AccountUpdateView_PATCH_pass(self):
         data = {
@@ -86,7 +86,7 @@ class TestAccountViews(TestCase):
                 }
         response = self.client.patch(reverse('RUD_account',args=[10]),data=data,content_type='application/json')
         self.assertEquals(response.status_code, 200)
-        pass
+        
     
     
     def test_LoginView_fail(self):
@@ -105,13 +105,13 @@ class TestAccountViews(TestCase):
         }
         response = self.client.post(reverse("user_login"),data=data,content_type='application/json')
         self.assertEqual(response.status_code,200)
-        pass
+        
     
     def test_LogoutView_fail(self):
         # unauthorized
         response = self.client.post(reverse("user_logout"))
         self.assertEqual(response.status_code,401)
-        pass
+        
     
     def test_LogoutView_pass(self):
         data = {
@@ -127,16 +127,14 @@ class TestAccountViews(TestCase):
         #test logout
         response = Client(headers=headers).post(reverse("user_logout"))
         self.assertEqual(response.status_code,200)
-        
-        pass
     
     def test_AccountDeleteView_DELETE_fail(self):
         # user with id does not exist
         response = self.client.delete(reverse('RUD_account',args=[70]))
         self.assertEqual(response.status_code,404)
-        pass
+        
     
     def test_AccountDeleteView_DELETE_pass(self):
         response = self.client.delete(reverse('RUD_account',args=[5]))
         self.assertEqual(response.status_code,204)
-        pass
+        
