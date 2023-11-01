@@ -20,7 +20,7 @@ class AccountLCAPIView(ListCreateAPIView):
     
     def get_permissions(self):
         if self.request.method == 'GET':
-            return [IsAuthenticated(),IsAdminUser()]
+            return [IsAdminUser()]
         elif self.request.method == 'POST':
             return [AllowAny()]
         return super().get_permissions()
@@ -52,18 +52,16 @@ class LoginView(APIView):
             user = None
             try:
                 user = Account.objects.get(username=username)
-            except ObjectDoesNotExist:
-                pass
-
-            if not user:
-                user = authenticate(username=username, password=password)
+            except:
+                return Response({"Error":"User does not exist with this username"},status=status.HTTP_400_BAD_REQUEST)
+            user = authenticate(username=username, password=password)
 
             if user:
                 token, created = Token.objects.get_or_create(user=user)
                 return Response({'token': token.key,
-                                 'user_id': user.pk,
-                                 'email': user.email
-                                 }
+                                'user_id': user.pk,
+                                'email': user.email
+                                }
                                 , status=status.HTTP_200_OK)
 
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
