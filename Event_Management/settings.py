@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "accounts",
     'django_filters',
     'rest_framework.authtoken',
+    'events_tickets',
 ]
 
 MIDDLEWARE = [
