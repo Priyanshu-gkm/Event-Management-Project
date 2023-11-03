@@ -9,3 +9,8 @@ class IsOrganizer(permissions.BasePermission):
 class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return bool(request.user.is_authenticated and obj.created_by.id == request.user.id)
+    
+    
+class IsAdminUser(permissions.IsAdminUser):
+    def has_permission(self, request, view):
+        return bool(request.user.is_authenticated and (request.user.role=="ADMIN" or request.user.is_superuser))

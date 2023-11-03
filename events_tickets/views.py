@@ -1,11 +1,11 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView , RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import  IsAdminUser , AllowAny
+from rest_framework.permissions import  AllowAny
 
 from events_tickets.models import Event,TicketType
 from events_tickets.serializers import EventSerializer,TicketSerializer,TicketTypeSerializer
-from events_tickets.custom_permissions import IsOrganizer , IsOwner
+from events_tickets.custom_permissions import IsOrganizer , IsOwner  , IsAdminUser
 
 
 class TicketTypeLC(ListCreateAPIView):
