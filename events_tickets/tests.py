@@ -153,18 +153,15 @@ class TicketTypeLCViews(TestCase):
         self.assertEqual(response.status_code,403)
             
     def test_ListTicketType_admin_success(self):
-        ticket_data = factory.build(dict,FACTORY_CLASS=TicketTypeFactory)
-        response = self.client.get(reverse('LC-ticket-type'),data=TicketTypeSerializer(data=ticket_data).initial_data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {self.admin_token}')
+        response = self.client.get(reverse('LC-ticket-type'),HTTP_AUTHORIZATION=f'Token {self.admin_token}')
         self.assertEqual(response.status_code,200)
             
-    def test_ListTicketType_organizer_success(self):
-        ticket_data = factory.build(dict,FACTORY_CLASS=TicketTypeFactory)
-        response = self.client.get(reverse('LC-ticket-type'),data=TicketTypeSerializer(data=ticket_data).initial_data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {self.organizer_token}')
+    def test_ListTicketType_organizer_success(self):  
+        response = self.client.get(reverse('LC-ticket-type'),HTTP_AUTHORIZATION=f'Token {self.organizer_token}')
         self.assertEqual(response.status_code,200)
             
     def test_ListTicketType_attendee_fail(self):
-        ticket_data = factory.build(dict,FACTORY_CLASS=TicketTypeFactory)
-        response = self.client.get(reverse('LC-ticket-type'),data=TicketTypeSerializer(data=ticket_data).initial_data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {self.attendee_token}')
+        response = self.client.get(reverse('LC-ticket-type'),HTTP_AUTHORIZATION=f'Token {self.attendee_token}')
         self.assertEqual(response.status_code,403)
         
 class TicketTypeRUDViews(TestCase):
