@@ -11,7 +11,7 @@ from events_tickets.serializers import (
     TicketTypeSerializer,
     TicketDataSerializer
 )
-from events_tickets.custom_permissions import IsOrganizer, IsEventOwner, IsAdminUser
+from events_tickets.custom_permissions import IsOrganizer, IsEventOwner, IsAdminUser , IsTicketOwner , IsTicketEventOwner
 
 
 class TicketTypeLC(ListCreateAPIView):
@@ -108,3 +108,9 @@ class TicketRUD(RetrieveUpdateDestroyAPIView):
     serializer_class = TicketSerializer
     queryset = Ticket.objects.all()
     permission_classes = [IsAdminUser]
+    
+    def get_permissions(self):
+        if self.request.method == "GET":
+            perms = IsAdminUser | IsTicketOwner | IsTicketEventOwner
+            return [perms()]
+        return super().get_permissions()
