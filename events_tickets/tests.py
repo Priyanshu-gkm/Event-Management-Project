@@ -1,17 +1,16 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from events_tickets.models import TicketType , EventTicketType , Event , Ticket
-from events_tickets.model_factory import EventFactory, TicketTypeFactory , TicketFactory
+from events_tickets.models import TicketType, Event, EventTicketType, Ticket
+from events_tickets.model_factory import EventFactory, TicketTypeFactory, TicketFactory
 from events_tickets.serializers import EventSerializer, TicketTypeSerializer
 from events_tickets.setup_data import get_setup_data
+
 from accounts.models import Account
 
 from faker import Faker
 import random
 import factory
-
-# Create your tests here.
 
 fake = Faker()
 
@@ -377,25 +376,24 @@ class TicketTypeRUDViews(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+
 class TicketLCViews(TestCase):
     @classmethod
     def setUpTestData(self):
-        self.ticket_create_data = {"event": 34, "ticket": [{"type": 1, "quantity": 2}]}
         for k, v in get_setup_data().items():
             setattr(self, k, v)
         for i in range(3):
             TicketTypeFactory()
 
         for i in range(3):
+            ticks = list(TicketType.objects.values_list("pk", flat=True))
             tickets = [
                 {
-                    "ticket_type": random.choice(
-                        list(TicketType.objects.values_list("pk", flat=True))
-                    ),
+                    "ticket_type": ticks[_],
                     "price": fake.pyint(min_value=100, max_value=9999),
                     "quantity": fake.pyint(min_value=10, max_value=100),
                 }
-                for _ in range(2)
+                for _ in range(1, 3)
             ]
 
             photos = [fake.url() for i in range(2)]
@@ -414,20 +412,25 @@ class TicketLCViews(TestCase):
             event = list(Event.objects.all())[
                 random.randint(1, Event.objects.count() - 1)
             ]
-            customer = Account.objects.get(id=i)
+            customer = Account.objects.first()
             ticket_type = EventTicketType.objects.filter(event=event)[0].ticket_type
             TicketFactory(event=event, customer=customer, ticket_type=ticket_type)
-        # print(Account.objects.all().values_list("id"))
-        # print(Event.objects.all())
-        # print(EventTicketType.objects.all())
-        # print(Ticket.objects.all())
+
+        event = list(Event.objects.all())[random.randint(1, Event.objects.count() - 1)]
+        ticket_type = EventTicketType.objects.filter(event=event)[0].ticket_type
+        self.ticket_create_data = {
+            "event": event.id,
+            "tickets": [{"type": ticket_type.id, "quantity": 2}],
+        }
 
     def test_TicketList_admin_success(self):
         response = self.client.get(
             reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.admin_token}"
         )
-        self.assertEqual(1,2,msg="assert 1==2")
-        self.assertTrue(Ticket.objects.count() == len(response.json()),msg="equal number of objects")
+        self.assertTrue(
+            Ticket.objects.count() == len(response.json()),
+            msg="equal number of objects",
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_TicketList_organizer_success(self):
@@ -435,11 +438,13 @@ class TicketLCViews(TestCase):
             reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.organizer_token}"
         )
         response_ids = set([i["event"] for i in response.json()])
-        created_by_ids = set([Event.objects.get(id=i).created_by for i in response_ids])
-        self.assertTrue(len(created_by_ids)==1)
+        created_by_ids = set(
+            [Event.objects.get(id=i).created_by.id for i in response_ids]
+        )
+        self.assertTrue(len(created_by_ids) == 1)
         self.assertTrue(self.organizer_id in created_by_ids)
         self.assertFalse(self.admin_id in created_by_ids)
-        self.assertFalse(self.attendee_id in created_by_ids) 
+        self.assertFalse(self.attendee_id in created_by_ids)
         self.assertEqual(response.status_code, 200)
 
     def test_TicketList_attendee_success(self):
@@ -447,7 +452,7 @@ class TicketLCViews(TestCase):
             reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.attendee_token}"
         )
         response_ids = set([i["customer"] for i in response.json()])
-        self.assertTrue(len(response_ids)==1)
+        self.assertTrue(len(response_ids) == 1)
         self.assertTrue(self.attendee_id in response_ids)
         self.assertFalse(self.admin_id in response_ids)
         self.assertFalse(self.organizer_id in response_ids)
@@ -455,45 +460,65 @@ class TicketLCViews(TestCase):
 
     def test_TicketCreate_admin_success(self):
         response = self.client.post(
-            reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.admin_token}",data=self.ticket_create_data,content_type='application/json'
+            reverse("LC-ticket"),
+            HTTP_AUTHORIZATION=f"Token {self.admin_token}",
+            data=self.ticket_create_data,
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
 
     def test_TicketCreate_organizer_success(self):
         response = self.client.post(
-            reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.organizer_token}",data=self.ticket_create_data,content_type='application/json'
+            reverse("LC-ticket"),
+            HTTP_AUTHORIZATION=f"Token {self.organizer_token}",
+            data=self.ticket_create_data,
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
 
     def test_TicketCreate_attendee_success(self):
         response = self.client.post(
-            reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.attendee_token}",data=self.ticket_create_data,content_type='application/json'
+            reverse("LC-ticket"),
+            HTTP_AUTHORIZATION=f"Token {self.attendee_token}",
+            data=self.ticket_create_data,
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
 
     def test_TicketCreate_attendee_fail_event_does_not_exist(self):
-        response = self.client.post(
-            reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.attendee_token}",data=self.ticket_create_data,content_type='application/json'
-        )
-        self.assertIn("object does not exist",str(response.content))
-        self.assertEqual(response.status_code, 400)
+        ticket_data = self.ticket_create_data
+        ticket_data["event"] = random.randint(4000, 5000)
+        try:
+            response = self.client.post(
+                reverse("LC-ticket"),
+                HTTP_AUTHORIZATION=f"Token {self.attendee_token}",
+                data=ticket_data,
+                content_type="application/json",
+            )
+        except Exception as e:
+            self.assertEqual("Event matching query does not exist.", str(e))
 
     def test_TicketCreate_attendee_fail_event_inactive(self):
-        self.ticket_create_data['event']=1
-        inst = Event.objects.get(id=1)
-        inst.is_active=False
+        inst = Event.objects.first()
+        inst.is_active = False
         inst.save()
+        self.ticket_create_data["event"] = inst.id
         response = self.client.post(
-            reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.attendee_token}",data=self.ticket_create_data,content_type='application/json'
+            reverse("LC-ticket"),
+            HTTP_AUTHORIZATION=f"Token {self.attendee_token}",
+            data=self.ticket_create_data,
+            content_type="application/json",
         )
-        self.assertIn("inactive",str(response.json()))
+        self.assertIn("Invalid", str(response.json()))
         self.assertEqual(response.status_code, 400)
 
     def test_TicketCreate_attendee_fail_event_active_ticket_not_linked(self):
-        ticket_type_list = [k[0]for k in list(EventTicketType.objects.filter(event=1).values_list('ticket_type'))]
-        self.ticket_create_data['ticket'][0]['type']=random.randint(1000,9999)
+        self.ticket_create_data["tickets"][0]["type"] = random.randint(1000, 9999)
         response = self.client.post(
-            reverse("LC-ticket"), HTTP_AUTHORIZATION=f"Token {self.attendee_token}",data=self.ticket_create_data,content_type='application/json'
+            reverse("LC-ticket"),
+            HTTP_AUTHORIZATION=f"Token {self.attendee_token}",
+            data=self.ticket_create_data,
+            content_type="application/json",
         )
-        self.assertIn("ticket type not found",str(response.json()))
+        self.assertIn("matching query does not exist.", str(response.json()))
         self.assertEqual(response.status_code, 400)

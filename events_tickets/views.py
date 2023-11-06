@@ -1,15 +1,17 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView , UpdateAPIView
+from rest_framework.permissions import AllowAny , IsAuthenticated
+from rest_framework.exceptions import ValidationError
 
 from events_tickets.models import Event, TicketType, Ticket
 from events_tickets.serializers import (
     EventSerializer,
     TicketSerializer,
     TicketTypeSerializer,
+    TicketDataSerializer
 )
-from events_tickets.custom_permissions import IsOrganizer, IsOwner, IsAdminUser
+from events_tickets.custom_permissions import IsOrganizer, IsEventOwner, IsAdminUser
 
 
 class TicketTypeLC(ListCreateAPIView):
@@ -53,14 +55,56 @@ class EventListCreate(ListCreateAPIView):
 class EventRUD(RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    permission_classes = [IsAdminUser | IsOwner]
+    permission_classes = [IsAdminUser | IsEventOwner]
 
 
 class TicketLC(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_serializer_class(self):
+        if self.request.method=="GET":
+            return TicketSerializer
+        else:
+            return TicketDataSerializer
+    
+    def get_queryset(self):
+        if self.request.method == "GET":
+            if self.request.user.role=="ADMIN":
+                return Ticket.objects.all()
+            elif self.request.user.role=="ORGANIZER":
+                organizer_id = self.request.user.id
+                events=list(Event.objects.filter(created_by=organizer_id).values_list("id",flat=True))
+                return Ticket.objects.filter(event__in=events)
+            elif self.request.user.role=="ATTENDEE":
+                return Ticket.objects.filter(customer=self.request.user.id)
+            
+    def post(self,request,*args,**kwargs):
+        ticket_data = request.data
+        ticket_data['customer'] = request.user.id
+        serializer = self.get_serializer(data=ticket_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+
+    
+class TicketCheckIn(UpdateAPIView):
+    permission_classes = [IsAuthenticated,IsOrganizer]
     serializer_class = TicketSerializer
     queryset = Ticket.objects.all()
-
-
+    
+    def patch(self, request, *args, **kwargs):
+        organizer_id = request.user.id
+        events=list(Event.objects.filter(created_by=organizer_id).values_list("id",flat=True))
+        instance_id = kwargs['pk']
+        if instance_id in list(Ticket.objects.filter(event__in=events).values_list("id",flat=True)):
+            ticket_inst = Ticket.objects.get(id=instance_id)
+            ticket_inst.is_active = False
+            ticket_inst.save()
+            return Response(TicketSerializer(ticket_inst).data,status=status.HTTP_200_OK)
+        else:
+            raise ValidationError("you are not authorized to perform this operation on this ticket!")
+    
 class TicketRUD(RetrieveUpdateDestroyAPIView):
     serializer_class = TicketSerializer
     queryset = Ticket.objects.all()
+    permission_classes = [IsAdminUser]
