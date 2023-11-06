@@ -9,4 +9,5 @@ urlpatterns = [
     path("events/",include("events_tickets.event_urls")),
     path("ticket-types/",include("events_tickets.ticket_type_urls")),
     path("tickets/",include("events_tickets.ticket_urls")),
+    path("wishlist/",include("events_tickets.urls")),
 ]

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Photo, Event, EventTicketType, Ticket, TicketType
+from .models import Photo, Event, EventTicketType, Ticket, TicketType , Wishlist
 from events_tickets.custom_validators import validate_date_greater_than_today
 
 
@@ -208,3 +208,13 @@ class TicketDataSerializer(serializers.Serializer):
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
         return serializer.data
+
+    
+    
+class WishlistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wishlist
+        fields = "__all__"
+        extra_kwargs = {
+            'created_by': {'write_only': True}
+        }
