@@ -63,3 +63,8 @@ class Ticket(models.Model):
     def delete(self, *args, **kwargs):
         self.is_active = False
         self.save()
+
+
+class Wishlist(models.Model):
+    created_by = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
