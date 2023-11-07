@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.response import Response
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -24,6 +24,8 @@ from events_tickets.custom_permissions import (
     IsTicketOwner,
     IsTicketEventOwner,
 )
+from events_tickets.custom_filters import EventFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class TicketTypeLC(ListCreateAPIView):
@@ -41,6 +43,9 @@ class TicketTypeRUD(RetrieveUpdateDestroyAPIView):
 class EventListCreate(ListCreateAPIView):
     serializer_class = EventSerializer
     queryset = Event.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = EventFilter
+    search_fields = ["name", "location", "description", "created_by__username"]
 
     def get_permissions(self):
         if self.request.method == "GET":
