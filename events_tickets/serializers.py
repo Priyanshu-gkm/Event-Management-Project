@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Photo, Event, EventTicketType, Ticket, TicketType , Wishlist
+from .models import Photo, Event, EventTicketType, Ticket, TicketType, Wishlist
 from events_tickets.custom_validators import validate_date_greater_than_today
 
 
@@ -24,6 +24,8 @@ class EventTicketTypeSerializer(serializers.ModelSerializer):
         ret = super(EventTicketTypeSerializer, self).to_representation(obj)
         if self.context.get("from") == "get_tickets":
             ret.pop("event")
+
+        ret["ticket_type"] = TicketType.objects.get(id=ret["ticket_type"]).name
         return ret
 
 
@@ -209,12 +211,9 @@ class TicketDataSerializer(serializers.Serializer):
                 serializer.save()
         return serializer.data
 
-    
-    
+
 class WishlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wishlist
         fields = "__all__"
-        extra_kwargs = {
-            'created_by': {'write_only': True}
-        }
+        extra_kwargs = {"created_by": {"write_only": True}}
