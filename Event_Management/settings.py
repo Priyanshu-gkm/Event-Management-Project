@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework.authtoken',
     'events_tickets',
+    'django_crontab',
+    'notify'
 ]
 
 MIDDLEWARE = [
@@ -123,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -148,3 +150,19 @@ REST_FRAMEWORK = {
     ],
     # Other settings...
 }
+
+
+#smtp config
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+
+# cronjob 
+CRONTAB_COMMAND_SUFFIX = '2>&1'
+CRONJOBS = [
+    ('0 14 * * * ', 'notify.jobs.send_mail_to_attendees','>> /Users/macbook/Desktop/django.txt')
+]
