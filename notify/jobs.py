@@ -1,18 +1,22 @@
-from django.core.mail import send_mail 
-from events_tickets.models import Ticket,Event
+from django.core.mail import send_mail
+from events_tickets.models import Ticket, Event
 from accounts.models import Account
-from datetime import datetime , timedelta
+from datetime import datetime, timedelta
 from Event_Management.settings import EMAIL_HOST_USER
 
 
 def send_mail_to_attendees():
-    tickets = Ticket.objects.filter(event__date__lte=datetime.now().date()+timedelta(1)).values_list('event_id','customer_id').distinct()
+    tickets = (
+        Ticket.objects.filter(event__date__lte=datetime.now().date() + timedelta(1))
+        .values_list("event_id", "customer_id")
+        .distinct()
+    )
     "(event_id,customer_id)"
     for i in tickets:
-        event=Event.objects.get(id=i[0])
-        attendee=Account.objects.get(id=i[1])
+        event = Event.objects.get(id=i[0])
+        attendee = Account.objects.get(id=i[1])
         subject = f"Reminder for {event.name} Event"
-        message =f"""
+        message = f"""
         Hello {attendee.fname +" "+ attendee.lname}
         This is to remind you that you have booked a ticket for event {event.name}. The details are as follows :
         
@@ -25,4 +29,9 @@ def send_mail_to_attendees():
         Thank you.
         """
         # print(attendee.email)
-        send_mail(subject,message,from_email=EMAIL_HOST_USER,recipient_list=[attendee.email])
+        send_mail(
+            subject,
+            message,
+            from_email=EMAIL_HOST_USER,
+            recipient_list=[attendee.email],
+        )
