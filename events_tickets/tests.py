@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from events_tickets.models import TicketType, Event, EventTicketType, Ticket , Wishlist
+from events_tickets.models import TicketType, Event, EventTicketType, Ticket, Wishlist
 from events_tickets.model_factory import EventFactory, TicketTypeFactory, TicketFactory
 from events_tickets.serializers import EventSerializer, TicketTypeSerializer
 from events_tickets.setup_data import get_setup_data
