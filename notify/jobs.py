@@ -11,10 +11,10 @@ def send_mail_to_attendees():
         .values_list("event_id", "customer_id")
         .distinct()
     )
-    "(event_id,customer_id)"
-    for i in tickets:
-        event = Event.objects.get(id=i[0])
-        attendee = Account.objects.get(id=i[1])
+    # "(event_id,customer_id)"
+    for ticket in tickets:
+        event = Event.objects.get(id=ticket[0])
+        attendee = Account.objects.get(id=ticket[1])
         subject = f"Reminder for {event.name} Event"
         message = f"""
         Hello {attendee.fname +" "+ attendee.lname}
