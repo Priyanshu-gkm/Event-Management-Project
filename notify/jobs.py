@@ -11,7 +11,7 @@ def send_mail_to_attendees():
         .values_list("event_id", "customer_id")
         .distinct()
     )
-    "(event_id,customer_id)"
+    # "(event_id,customer_id)"
     for i in tickets:
         event = Event.objects.get(id=i[0])
         attendee = Account.objects.get(id=i[1])
