@@ -64,15 +64,15 @@ class EventSerializer(serializers.ModelSerializer):
 
     def save_photos(self, photo_data, event_id):
         img_obj = []
-        for i in photo_data:
-            img_obj.append({"event": event_id, "image": i})
+        for img_url in photo_data:
+            img_obj.append({"event": event_id, "image": img_url})
         serializer = PhotoSerializer(data=img_obj, many=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
     def create_event_tickets(self, tickets_data, event_id):
-        for i in tickets_data:
-            i["event"] = event_id
+        for ticket in tickets_data:
+            ticket["event"] = event_id
         serializer = EventTicketTypeSerializer(data=tickets_data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
