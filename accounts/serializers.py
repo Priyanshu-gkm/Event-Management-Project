@@ -18,8 +18,12 @@ class AccountSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_superuser",
             "password",
+            "forget_password_token",
         ]
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs = {
+            "password": {"write_only": True},
+            "forget_password_token": {"write_only": True},
+        }
 
     def create(self, validated_data):
         model = self.Meta.model
