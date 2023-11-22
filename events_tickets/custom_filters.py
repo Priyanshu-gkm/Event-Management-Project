@@ -1,5 +1,6 @@
 import django_filters
-from events_tickets.models import Event
+
+from Event_Management.events_tickets.models import Event
 
 
 class EventFilter(django_filters.FilterSet):

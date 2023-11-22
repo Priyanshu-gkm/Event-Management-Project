@@ -1,6 +1,6 @@
-from django.contrib import admin
 from django.urls import path, include
-from accounts import views
+
+from Event_Management.accounts import views
 
 urlpatterns = [
     path("accounts/", include("accounts.urls")),

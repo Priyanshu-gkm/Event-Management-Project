@@ -1,7 +1,14 @@
 import factory
 from faker import Faker
 import random
-from .models import Event, EventTicketType, Photo, Ticket, TicketType
+
+from Event_Management.events_tickets.models import (
+    Event,
+    EventTicketType,
+    Photo,
+    Ticket,
+    TicketType,
+)
 from accounts.models import Account
 
 fake = Faker()
