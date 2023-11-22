@@ -63,6 +63,7 @@
     │   ├── managers.py
     │   ├── migrations/
     │   │   ├── 0001_initial.py
+    │   │   ├── 0002_account_forget_password_token.py
     │   ├── models.py
     │   ├── serializers.py
     │   ├── tests.py
@@ -76,24 +77,20 @@
     │   ├── tests.py
     │   ├── urls.py
     │   └── views.py
-    ├── events_tickets/
+    ├── events/
     │   ├── admin.py
     │   ├── apps.py
     │   ├── custom_filters.py
     │   ├── custom_permissions.py
     │   ├── custom_validators.py
-    │   ├── event_urls.py
     │   ├── migrations/
     │   │   ├── 0001_initial.py
-    │   │   ├── 0002_ticket_archive.py
-    │   │   ├── 0003_wishlist.py
+    │   │   ├── 0002_eventtickettype.py
     │   ├── model_factory.py
     │   ├── models.py
     │   ├── serializers.py
     │   ├── setup_data.py
     │   ├── tests.py
-    │   ├── ticket_type_urls.py
-    │   ├── ticket_urls.py
     │   ├── urls.py
     │   └── views.py
     ├── manage.py
@@ -101,7 +98,33 @@
     │   ├── apps.py
     │   ├── jobs.py
     │   └── migrations/
-    └── requirements.txt
+    ├── requirements.txt
+    ├── tickets/
+    │   ├── admin.py
+    │   ├── apps.py
+    │   ├── custom_permissions.py
+    │   ├── migrations/
+    │   │   ├── 0001_initial.py
+    │   │   ├── 0002_delete_ticket.py
+    │   │   ├── 0003_ticket.py
+    │   ├── model_factory.py
+    │   ├── models.py
+    │   ├── serializers.py
+    │   ├── tests.py
+    │   ├── ticket_type_urls.py
+    │   ├── urls.py
+    │   └── views.py
+    └── wishlist/
+        ├── admin.py
+        ├── apps.py
+        ├── custom_permissions.py
+        ├── migrations/
+        │   ├── 0001_initial.py
+        ├── models.py
+        ├── serializers.py
+        ├── tests.py
+        ├── urls.py
+        └── views.py
 
 ```
 
