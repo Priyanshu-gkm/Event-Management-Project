@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from accounts.models import Account
+
+from Event_Management.accounts.models import Account
 
 
 class AccountSerializer(serializers.ModelSerializer):

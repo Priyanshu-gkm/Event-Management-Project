@@ -1,17 +1,20 @@
+from django.contrib.auth import authenticate
+from django.core.mail import send_mail
+
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from accounts.models import Account
-from accounts.serializers import AccountSerializer
+
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from accounts.custom_permissions import IsAdminUser, IsSameUser
-from django.core.mail import send_mail
-from Event_Management.settings import EMAIL_HOST_USER
 import uuid
+
+from Event_Management.settings import EMAIL_HOST_USER
+from Event_Management.accounts.models import Account
+from Event_Management.accounts.serializers import AccountSerializer
+from Event_Management.accounts.custom_permissions import IsAdminUser, IsSameUser
 
 
 class AccountLCAPIView(ListCreateAPIView):
