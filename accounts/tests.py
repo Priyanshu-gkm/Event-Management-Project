@@ -1,8 +1,10 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from accounts.models import Account
+
 import random
 import json
+
+from Event_Management.accounts.models import Account
 
 
 class TestAccountViews(TestCase):

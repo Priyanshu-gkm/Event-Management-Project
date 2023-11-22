@@ -1,5 +1,6 @@
 from django.urls import path
-from events_tickets import views
+
+from Event_Management.events_tickets import views
 
 urlpatterns = [
     path("", views.EventListCreate.as_view(), name="LC-event"),

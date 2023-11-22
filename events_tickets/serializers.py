@@ -1,6 +1,16 @@
 from rest_framework import serializers
-from .models import Photo, Event, EventTicketType, Ticket, TicketType, Wishlist
-from events_tickets.custom_validators import validate_date_greater_than_today
+
+from Event_Management.events_tickets.models import (
+    Photo,
+    Event,
+    EventTicketType,
+    Ticket,
+    TicketType,
+    Wishlist,
+)
+from Event_Management.events_tickets.custom_validators import (
+    validate_date_greater_than_today,
+)
 
 
 class PhotoSerializer(serializers.ModelSerializer):

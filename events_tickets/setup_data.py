@@ -1,7 +1,9 @@
-from accounts.models import Account
-import json, random
-from django.urls import reverse
 from django.test import Client
+from django.urls import reverse
+
+import json, random
+
+from Event_Management.accounts.models import Account
 
 
 def get_setup_data():

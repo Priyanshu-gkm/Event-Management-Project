@@ -1,4 +1,5 @@
 from django.db import models
+
 from Event_Management.settings import AUTH_USER_MODEL
 
 

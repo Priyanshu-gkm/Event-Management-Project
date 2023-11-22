@@ -8,24 +8,24 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import ValidationError
+from django_filters.rest_framework import DjangoFilterBackend
 
-from events_tickets.models import Event, TicketType, Ticket, Wishlist
-from events_tickets.serializers import (
+from Event_Management.events_tickets.models import Event, TicketType, Ticket, Wishlist
+from Event_Management.events_tickets.serializers import (
     EventSerializer,
     TicketSerializer,
     TicketTypeSerializer,
     TicketDataSerializer,
     WishlistSerializer,
 )
-from events_tickets.custom_permissions import (
+from Event_Management.events_tickets.custom_permissions import (
     IsOrganizer,
     IsEventOwner,
     IsAdminUser,
     IsTicketOwner,
     IsTicketEventOwner,
 )
-from events_tickets.custom_filters import EventFilter
-from django_filters.rest_framework import DjangoFilterBackend
+from Event_Management.events_tickets.custom_filters import EventFilter
 
 
 class TicketTypeLC(ListCreateAPIView):

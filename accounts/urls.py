@@ -1,5 +1,6 @@
 from django.urls import path
-from accounts import views
+
+from Event_Management.accounts import views
 
 urlpatterns = [
     path("", views.AccountLCAPIView.as_view(), name="LC_account"),

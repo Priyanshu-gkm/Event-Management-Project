@@ -1,5 +1,6 @@
 from rest_framework import permissions
-from events_tickets.models import Event
+
+from Event_Management.events_tickets.models import Event
 
 
 class IsOrganizer(permissions.BasePermission):

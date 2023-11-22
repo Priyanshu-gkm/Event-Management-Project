@@ -1,16 +1,29 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from events_tickets.models import TicketType, Event, EventTicketType, Ticket, Wishlist
-from events_tickets.model_factory import EventFactory, TicketTypeFactory, TicketFactory
-from events_tickets.serializers import EventSerializer, TicketTypeSerializer
-from events_tickets.setup_data import get_setup_data
-
-from accounts.models import Account
-
 from faker import Faker
 import random
 import factory
+
+from Event_Management.events_tickets.models import (
+    TicketType,
+    Event,
+    EventTicketType,
+    Ticket,
+    Wishlist,
+)
+from Event_Management.events_tickets.model_factory import (
+    EventFactory,
+    TicketTypeFactory,
+    TicketFactory,
+)
+from Event_Management.events_tickets.serializers import (
+    EventSerializer,
+    TicketTypeSerializer,
+)
+from Event_Management.accounts.models import Account
+from Event_Management.events_tickets.setup_data import get_setup_data
+
 
 fake = Faker()
 
@@ -19,7 +32,7 @@ class EventChecks(TestCase):
     def setUp(self):
         for k, v in get_setup_data().items():
             setattr(self, k, v)
-        for i in range(3):
+        for _ in range(3):
             TicketTypeFactory()
 
         tickets = [
@@ -291,7 +304,7 @@ class TicketTypeRUDViews(TestCase):
             setattr(self, k, v)
 
         self.ticket_type_id = []
-        for i in range(3):
+        for _ in range(3):
             TicketTypeFactory()
             self.ticket_type_id.append(TicketType.objects.latest("id").__dict__["id"])
 
@@ -382,10 +395,10 @@ class TicketLCViews(TestCase):
     def setUpTestData(self):
         for k, v in get_setup_data().items():
             setattr(self, k, v)
-        for i in range(3):
+        for iter in range(3):
             TicketTypeFactory()
 
-        for i in range(3):
+        for iter in range(3):
             ticks = list(TicketType.objects.values_list("pk", flat=True))
             tickets = [
                 {
@@ -408,7 +421,7 @@ class TicketLCViews(TestCase):
                 HTTP_AUTHORIZATION=f"Token {self.organizer_token}",
             ).json()
 
-        for i in range(1, 4):
+        for iter in range(1, 4):
             event = list(Event.objects.all())[
                 random.randint(1, Event.objects.count() - 1)
             ]
@@ -529,10 +542,10 @@ class TicketRUDViews(TestCase):
     def setUpTestData(self):
         for k, v in get_setup_data().items():
             setattr(self, k, v)
-        for i in range(3):
+        for iter in range(3):
             TicketTypeFactory()
 
-        for i in range(3):
+        for iter in range(3):
             ticks = list(TicketType.objects.values_list("pk", flat=True))
             tickets = [
                 {
@@ -555,7 +568,7 @@ class TicketRUDViews(TestCase):
                 HTTP_AUTHORIZATION=f"Token {self.organizer_token}",
             ).json()
 
-        for i in range(1, 4):
+        for iter in range(1, 4):
             event = list(Event.objects.all())[
                 random.randint(1, Event.objects.count() - 1)
             ]
@@ -649,10 +662,10 @@ class WishlistViews(TestCase):
     def setUpTestData(self):
         for k, v in get_setup_data().items():
             setattr(self, k, v)
-        for i in range(3):
+        for iter in range(3):
             TicketTypeFactory()
 
-        for i in range(3):
+        for iter in range(3):
             ticks = list(TicketType.objects.values_list("pk", flat=True))
             tickets = [
                 {
@@ -675,9 +688,9 @@ class WishlistViews(TestCase):
                 HTTP_AUTHORIZATION=f"Token {self.organizer_token}",
             ).json()
 
-        for i in range(1, 4):
+        for id in range(1, 4):
             Wishlist.objects.create(
-                created_by=Account.objects.get(id=i), event=Event.objects.get(id=i)
+                created_by=Account.objects.get(id=id), event=Event.objects.get(id=id)
             )
 
     def test_addItem_fail_login_required(self):
@@ -746,7 +759,7 @@ class WishlistViews(TestCase):
         response = self.client.get(
             reverse("LC-wishlist"), HTTP_AUTHORIZATION=f"Token {self.organizer_token}"
         )
-        resp = [i["id"] for i in response.json()]
+        resp = [event["id"] for event in response.json()]
         self.assertEqual(response.status_code, 200)
         self.assertFalse(self.attendee_id in resp)
         self.assertFalse(self.admin_id in resp)
@@ -755,7 +768,7 @@ class WishlistViews(TestCase):
         response = self.client.get(
             reverse("LC-wishlist"), HTTP_AUTHORIZATION=f"Token {self.attendee_token}"
         )
-        resp = [i["id"] for i in response.json()]
+        resp = [event["id"] for event in response.json()]
         self.assertEqual(response.status_code, 200)
         self.assertFalse(self.organizer_id in resp)
         self.assertFalse(self.admin_id in resp)
@@ -764,7 +777,7 @@ class WishlistViews(TestCase):
         response = self.client.get(
             reverse("LC-wishlist"), HTTP_AUTHORIZATION=f"Token {self.admin_token}"
         )
-        resp = [i["id"] for i in response.json()]
+        resp = [event["id"] for event in response.json()]
         self.assertEqual(response.status_code, 200)
         self.assertFalse(self.attendee_id in resp)
         self.assertFalse(self.organizer_id in resp)
