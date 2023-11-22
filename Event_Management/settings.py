@@ -41,9 +41,11 @@ INSTALLED_APPS = [
     "rest_framework",
     "api",
     "accounts",
-    "django_filters",
     "rest_framework.authtoken",
-    "events_tickets",
+    "events",
+    "wishlist",
+    "tickets",
+    "django_filters",
     "django_crontab",
     "notify",
 ]

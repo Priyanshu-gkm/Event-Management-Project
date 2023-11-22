@@ -1,13 +1,13 @@
 from django.urls import path, include
+from accounts import views
 
-from Event_Management.accounts import views
 
 urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("login/", views.LoginView.as_view(), name="user_login"),
     path("logout/", views.LogoutView.as_view(), name="user_logout"),
-    path("events/", include("events_tickets.event_urls")),
-    path("ticket-types/", include("events_tickets.ticket_type_urls")),
-    path("tickets/", include("events_tickets.ticket_urls")),
-    path("wishlist/", include("events_tickets.urls")),
+    path("events/", include("events.urls")),
+    path("ticket-types/", include("tickets.ticket_type_urls")),
+    path("tickets/", include("tickets.urls")),
+    path("wishlist/", include("wishlist.urls")),
 ]
