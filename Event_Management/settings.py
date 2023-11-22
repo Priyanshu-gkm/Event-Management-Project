@@ -169,6 +169,6 @@ CRONJOBS = [
     (
         "0 14 * * * ",
         "notify.jobs.send_mail_to_attendees",
-        ">> /Users/macbook/Desktop/django.txt",
+        # ">> /Users/macbook/Desktop/django.txt",
     )
 ]
