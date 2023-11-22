@@ -12,3 +12,8 @@ class IsAdminUser(permissions.IsAdminUser):
             request.user.is_authenticated
             and (request.user.role == "ADMIN" or request.user.is_superuser)
         )
+
+class IsOrganizer(permissions.BasePermission):
+    def has_permission(self, request, view):
+        # Check if the user has a 'organizer' role
+        return bool(request.user.is_authenticated and request.user.role == "ORGANIZER")

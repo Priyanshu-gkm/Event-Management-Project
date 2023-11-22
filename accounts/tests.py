@@ -4,7 +4,7 @@ from django.urls import reverse
 import random
 import json
 
-from Event_Management.accounts.models import Account
+from accounts.models import Account
 
 
 class TestAccountViews(TestCase):

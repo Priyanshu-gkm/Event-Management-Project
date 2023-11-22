@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 import uuid
 
-from Event_Management.accounts.managers import MyAccountManager
+from accounts.managers import MyAccountManager
 
 
 class Account(AbstractBaseUser, PermissionsMixin):

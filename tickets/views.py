@@ -1,31 +1,25 @@
-from rest_framework import status, filters
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
     UpdateAPIView,
-    DestroyAPIView,
 )
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
-from django_filters.rest_framework import DjangoFilterBackend
 
-from Event_Management.events_tickets.models import Event, TicketType, Ticket, Wishlist
-from Event_Management.events_tickets.serializers import (
-    EventSerializer,
+from tickets.models import Ticket, TicketType
+from events.models import Event
+from tickets.serializers import (
     TicketSerializer,
     TicketTypeSerializer,
     TicketDataSerializer,
-    WishlistSerializer,
 )
-from Event_Management.events_tickets.custom_permissions import (
+from accounts.custom_permissions import (
     IsOrganizer,
-    IsEventOwner,
     IsAdminUser,
-    IsTicketOwner,
-    IsTicketEventOwner,
 )
-from Event_Management.events_tickets.custom_filters import EventFilter
+from tickets.custom_permissions import IsTicketEventOwner, IsTicketOwner
 
 
 class TicketTypeLC(ListCreateAPIView):
@@ -38,41 +32,6 @@ class TicketTypeRUD(RetrieveUpdateDestroyAPIView):
     serializer_class = TicketTypeSerializer
     queryset = TicketType.objects.all()
     permission_classes = [IsAdminUser]
-
-
-class EventListCreate(ListCreateAPIView):
-    serializer_class = EventSerializer
-    queryset = Event.objects.all()
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_class = EventFilter
-    search_fields = ["name", "location", "description", "created_by__username"]
-
-    def get_permissions(self):
-        if self.request.method == "GET":
-            # AllowAny for GET requests
-            return [AllowAny()]
-        elif self.request.method == "POST":
-            # only admin or an organizer can create an event
-            perms = IsOrganizer | IsAdminUser
-            return [perms()]
-        return super().get_permissions()
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        event_data = request.data
-        event_data["created_by"] = request.user.id
-        serializer = self.get_serializer(data=event_data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class EventRUD(RetrieveUpdateDestroyAPIView):
-    queryset = Event.objects.all()
-    serializer_class = EventSerializer
-    permission_classes = [IsAdminUser | IsEventOwner]
 
 
 class TicketLC(ListCreateAPIView):
@@ -144,33 +103,3 @@ class TicketRUD(RetrieveUpdateDestroyAPIView):
             perms = IsAdminUser | IsTicketOwner | IsTicketEventOwner
             return [perms()]
         return super().get_permissions()
-
-
-class WishlistLCView(ListCreateAPIView):
-    serializer_class = WishlistSerializer
-    permission_classes = [IsAuthenticated, IsEventOwner]
-    queryset = Wishlist.objects.all()
-
-    def get_queryset(self):
-        if self.request.method == "GET":
-            return Wishlist.objects.filter(created_by=self.request.user.id)
-        return super().get_queryset()
-
-    def get_permissions(self):
-        if self.request.method == "POST":
-            return [IsAuthenticated()]
-        return super().get_permissions()
-
-    def post(self, request, *args, **kwargs):
-        data = request.data
-        data["created_by"] = request.user.id
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class WishlistDeleteView(DestroyAPIView):
-    serializer_class = WishlistSerializer
-    permission_classes = [IsAuthenticated, IsEventOwner]
-    queryset = Wishlist.objects.all()

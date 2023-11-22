@@ -1,5 +1,5 @@
 from django.urls import path
-from Event_Management.events_tickets import views
+from wishlist import views
 
 urlpatterns = [
     path("", views.WishlistLCView.as_view(), name="LC-wishlist"),
