@@ -9,6 +9,9 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from accounts.custom_permissions import IsAdminUser, IsSameUser
+from django.core.mail import send_mail
+from Event_Management.settings import EMAIL_HOST_USER
+import uuid
 
 
 class AccountLCAPIView(ListCreateAPIView):
@@ -82,3 +85,90 @@ class LogoutView(APIView):
         return Response(
             {"message": "Successfully logged out"}, status=status.HTTP_200_OK
         )
+
+
+class ChangePasswordView(APIView):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            current_password = request.data.get("current_password")
+            new_password = request.data.get("new_password")
+            user = authenticate(
+                username=request.user.username, password=current_password
+            )
+            if user:
+                user.set_password(new_password)
+                user.save()
+                return Response(
+                    {"message": "password changed successfully"},
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                return Response(
+                    {"error": "user does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class ForgotPasswordView(APIView):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
+
+    def post(self, request):
+        try:
+            email = request.data.get("email")
+            user = self.queryset.get(email=email)
+            if user:
+                user.forget_password_token = uuid.uuid4()
+                user.save()
+                send_mail(
+                    subject="Password reset token",
+                    message=f"To reset your account password, the token is = {user.forget_password_token} ",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[user.email],
+                )
+                return Response(
+                    {"message": "Email sent to reset password"},
+                    status=status.HTTP_200_OK,
+                )
+        except Account.DoesNotExist as e:
+            return Response(
+                {"error": "user does not exist with this email"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    def patch(self, request, token):
+        try:
+            user = self.queryset.get(forget_password_token=token)
+            new_password = request.data.get("new_password")
+            if user:
+                user.set_password(new_password)
+                user.forget_password_token = None
+                user.save()
+                return Response(
+                    {"message": "password changed successfully"},
+                    status=status.HTTP_200_OK,
+                )
+        except Account.DoesNotExist as e:
+            return Response(
+                {"error": "user does not exist with this token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
