@@ -51,7 +51,6 @@
 ```sh
 └── Event_Management/
     ├── .env.sample
-    ├── .envrc
     ├── Event_Management/
     │   ├── asgi.py
     │   ├── settings.py
