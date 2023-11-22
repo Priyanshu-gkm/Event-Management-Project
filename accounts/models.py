@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
-import uuid
-
 from accounts.managers import MyAccountManager
 
 
